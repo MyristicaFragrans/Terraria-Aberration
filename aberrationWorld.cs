@@ -92,6 +92,17 @@ namespace aberration {
                 }
             }));
 
+            tasks.Add(new PassLegacy("Shinies", delegate (GenerationProgress progress) {
+                progress.Message = "Dropping Precious Stones";
+                for (int x = 0; x < Main.maxTilesX; x++) {
+                    for (int y = (int)Main.rockLayer; y < Main.maxTilesY - 200; y++) {
+
+                        int distanceFromTop = y - (int)Main.rockLayer;
+                        if ( WorldGen.genRand.Next(0, (distanceFromTop+100)*100) == 0 ) WorldGen.TileRunner(x, y, WorldGen.genRand.Next(5, 10), WorldGen.genRand.Next(5, 10), TileType<IonizingMetal>());
+                        else if (WorldGen.genRand.Next(0, 2000) == 0) WorldGen.TileRunner(x, y, WorldGen.genRand.Next(5, 10), WorldGen.genRand.Next(5, 10), TileID.Iron);
+                    }
+                }
+            }));
             tasks.Add(new PassLegacy("placeDirt", delegate (GenerationProgress progress) {
                 progress.Message = "Gardening..."; List<Vector2> inner20 = new List<Vector2> { };
                 List<Vector2> gardenSites = new List<Vector2> { };
@@ -324,8 +335,8 @@ namespace aberration {
                             if (!Main.tile[gx, gy - 1].active()) {
                                 WorldGen.GrowTree(gx, gy);
                                 if (!Main.tile[gx, gy - 1].active()) {
-                                    if (WorldGen.genRand.Next(6) == 0) {
-                                        WorldGen.PlaceTile(gx, gy - 1, TileID.Torches, style: 2); // Red Torch
+                                    if (WorldGen.genRand.Next(12) == 0) {
+                                        WorldGen.PlaceTile(gx, gy - 1, TileType<Tiles.IonizingMetal>(), forced: true);
                                     } else {
                                         WorldGen.PlaceTile(gx, gy - 1, 3, style: WorldGen.genRand.Next(1, 42)); //tall grass
                                     }
