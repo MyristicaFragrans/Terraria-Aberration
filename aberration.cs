@@ -14,4 +14,15 @@ namespace aberration
             shared.Lighting.init();
             
         }
+        public override void AddRecipes() {
+            ModRecipe rope = new ModRecipe(this);
+            rope.AddIngredient(ModContent.ItemType<plantfibre>(), 5);
+            rope.SetResult(ItemID.Rope);
+
+            ModRecipe lantern = new ModRecipe(this);
+            lantern.AddIngredient(ModContent.ItemType<IonizingMetalItem>());
+            lantern.AddIngredient(ItemID.IronBar);
+            lantern.AddTile(TileID.WorkBenches);
+        }
+    }
 }
