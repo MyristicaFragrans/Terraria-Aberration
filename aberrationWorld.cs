@@ -214,13 +214,13 @@ namespace aberration {
             }
             return output;
         }
-        /*internal static List<Vector2> minorCave(Vector2 coordinates, float direction) {
+        /*internal static List<Vector2> minorCaveBranch(Vector2 coordinates, float direction) {
 			Vector2 center = new Vector2((int)coordinates.X, (int)coordinates.Y);
 			int step = WorldGen.genRand.Next(50, 150);
 			coordinates.X += step;
 			coordinates = coordinates.RotatedBy(direction, center);
 			coordinates = new Vector2((int)coordinates.X, (int)coordinates.Y);
-			if (!majorCaves.Contains(center)) throw new Exception("Center is somehow no longer on major line");
+			//if (!majorCaves.Contains(center)) throw new Exception("Center is somehow no longer on major line");
 			if (coordinates.X < 200 || coordinates.Y < 200 || coordinates.X > Main.maxTilesX - 200 || coordinates.Y > Main.maxTilesY - 200) return new List<Vector2>(0);
 			List<Vector2> tmp = new List<Vector2> { };
 			tmp.AddRange(bresenham(center, coordinates));
