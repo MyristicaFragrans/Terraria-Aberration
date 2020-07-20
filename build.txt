@@ -1,0 +1,3 @@
+displayName = Terraria Aberration
+author = BRH0208, Dr. Yamok
+version = 0.1

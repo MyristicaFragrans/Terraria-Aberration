@@ -1,0 +1,67 @@
+﻿List<node> nodes = new List<node> { };
+            tasks.Add(new PassLegacy("minor", delegate (GenerationProgress progress) {
+                progress.Message = "Sediment Deposits";
+                int target = 100;
+                int index = 0;
+                int tries = 1000;
+                while(index < target && tries > 0) {
+                    tries--;
+                    //generate random coordinates within a nice rectangle
+                    int x = WorldGen.genRand.Next(300, Main.maxTilesX - 300);
+                    int y = WorldGen.genRand.Next((int)Main.rockLayer + 50, Main.maxTilesY - 250);
+                    //give those coords a Vector2
+                    Vector2 suitor = new Vector2(x, y);
+
+                    //Begin Testing usability
+                    bool usable = true;
+                    for(int i = 0; i < nodes.Count; i++) {
+                        if(Vector2.Distance(nodes[i].localnode, suitor) < 150) {
+                            usable = false;
+                            i = nodes.Count;
+                        }
+                    }
+                    //ayyy add it
+                    if(usable) {
+                        nodes.Add(new node(suitor));
+                        index++;
+                    }
+                }
+            }));
+            List<Vector2> minorCaves = new List<Vector2> { };
+            tasks.Add(new PassLegacy("growminor", delegate (GenerationProgress progress) {
+                progress.Message = "Growing Sediment";
+                int target = 500;
+                int index = 0;
+                int tries = 3000;
+                while (index < target && tries > 0) {
+                    tries--;
+                    //generate random coordinates within a nice rectangle
+                    int x = WorldGen.genRand.Next(300, Main.maxTilesX - 300);
+                    int y = WorldGen.genRand.Next((int)Main.rockLayer + 50, Main.maxTilesY - 250);
+                    //give those coords a Vector2
+                    Vector2 suitor = new Vector2(x, y);
+
+                    //Begin Testing usability
+                    for (int i = 0; i < nodes.Count; i++) {
+                        if (nodes[i].neighbors < 2 && Vector2.Distance(nodes[i].localnode, suitor) < 150 && Vector2.Distance(nodes[i].localnode, suitor) > 20) {
+                            nodes[i].neighbors++;
+                            nodes.Add(new node(suitor, 1));
+                            if(suitor.X < nodes[i].localnode.X)
+                                minorCaves.AddRange(bresenham(suitor, nodes[i].localnode));
+                            else
+                                minorCaves.AddRange(bresenham(nodes[i].localnode, suitor));
+                            index++;
+                            break;
+                        }
+                    }
+                }
+
+            }));
+            tasks.Add(new PassLegacy("finishminor", delegate (GenerationProgress progress) {
+                progress.Message = "Settling Sediment";
+                for (int i = 0; i < minorCaves.Count; i++) {
+                    int x = (int)minorCaves[i].X;
+                    int y = (int)minorCaves[i].Y;
+                    WorldGen.TileRunner(x, y, WorldGen.genRand.Next(10, 25), WorldGen.genRand.Next(10, 25), -1);
+                }
+            }));
