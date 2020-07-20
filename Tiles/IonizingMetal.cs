@@ -16,6 +16,7 @@ namespace aberration.Tiles {
 			Main.tileMergeDirt[Type] = true;
 			Main.tileSolid[Type] = true;
 			Main.tileBlockLight[Type] = true;
+			Main.tileLighted[Type] = true;
 
 			ModTranslation name = CreateMapEntryName();
 			name.SetDefault("Ionizing Ore");
@@ -28,5 +29,8 @@ namespace aberration.Tiles {
 			//mineResist = 4f;
 			//minPick = 200;
 		}
-	}
+        public override void ModifyLight(int i, int j, ref float r, ref float g, ref float b) {
+            shared.Lighting.ModifyLight(i, j, ref r, ref g, ref b);
+        }
+    }
 }

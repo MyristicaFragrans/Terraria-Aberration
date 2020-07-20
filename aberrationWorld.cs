@@ -3,11 +3,13 @@ using System.Net.Mail;
 using Terraria;
 using Terraria.GameContent.Generation;
 using Terraria.ModLoader;
+using static Terraria.ModLoader.ModContent;
 using Terraria.World.Generation;
 using Terraria.ID;
 using Microsoft.Xna.Framework;
 using aberration.datastructures;
 using System;
+using aberration.Tiles;
 
 namespace aberration {
     class aberrationWorld : ModWorld {

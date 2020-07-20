@@ -19,7 +19,18 @@ namespace aberration.Tiles {
             Main.tileWaterDeath[Type] = false;
             Main.tileLavaDeath[Type] = false;
 
-            TileObjectData.newTile.CopyFrom(TileObjectData.Style1x2);
+            TileObjectData.newTile.CopyFrom(TileObjectData.StyleTorch);
+            TileObjectData.newTile.CoordinateHeights = new int[] { 16,  16 };
+            TileObjectData.newTile.CoordinatePadding = 2;
+            TileObjectData.newTile.Height = 2;
+            TileObjectData.newTile.CoordinateWidth = 14;
+            TileObjectData.newTile.UsesCustomCanPlace = true;
+            TileObjectData.newTile.WaterDeath = false;
+            TileObjectData.newTile.WaterPlacement = LiquidPlacement.Allowed;
+            TileObjectData.newTile.LavaDeath = false;
+            TileObjectData.newTile.LavaPlacement = LiquidPlacement.NotAllowed;
+            TileObjectData.newTile.Origin = new Point16(0, 1);
+
             AddToArray(ref TileID.Sets.RoomNeeds.CountsAsTorch);
 
             TileObjectData.newTile.WaterDeath = false;
@@ -34,7 +45,7 @@ namespace aberration.Tiles {
             if(Main.tile[i,j].active() || Main.tile[i,j-1].active()) {//blocks are not free
                 return false;
             } else {
-                if (Main.tile[i + 1, j - 1].active() || Main.tile[i - 1, j - 1].active() || Main.tile[i, j + 1].active() || Main.tile[i, j - 2].active()) return true;
+                if (Main.tile[i + 1, j - 1].active() || Main.tile[i - 1, j - 1].active() || Main.tile[i, j + 1].active() || Main.tile[i, j - 2].active() || Main.tile[i,j-1].wall != WallID.None) return true;
                 else return false;
             }
         }
@@ -48,30 +59,7 @@ namespace aberration.Tiles {
             }
         }
         public override void ModifyLight(int i, int j, ref float r, ref float g, ref float b) {
-            Tile tile = Main.tile[i, j];
-            Texture2D day = GetTexture("aberration/shared/daynight");
-            Color[] colors = new Color[day.Width];
-            day.GetData(colors);
-            Color light = colors[0];
-            int brightness = 100 + (tile.liquid/2); //gets darker in water
-            if (Main.dayTime) {
-                //pass
-            } else if(Main.time < 5400) { // is before 1:30 past sunset
-                int ratio = (int)((Main.time / 5400) * (day.Width-1));
-                light = colors[ratio];
-            } else if(Main.time > 27000) { // is after 1:30 till sunrise
-                double tmptime = Main.time - 27000;
-                int ratio = (day.Width-1) - (int)((tmptime / 5400) * (day.Width-1));
-                light = colors[ratio];
-            } else {
-                light = colors[day.Width-1];
-            }
-            if (tile.frameX == 0) {
-                // We can support different light colors for different styles here: switch (tile.frameY / 54)
-                r = (float)light.R / brightness;
-                g = (float)light.G / brightness;
-                b = (float)light.B / brightness;
-            }
+            shared.Lighting.ModifyLight(i, j, ref r, ref g, ref b);
         }
     }
 }
