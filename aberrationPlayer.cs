@@ -23,10 +23,7 @@ namespace aberration
 		public bool isIrradiated;
 		private int counter = 0;
 		
-<<<<<<< HEAD
 		
-=======
->>>>>>> 0f58b0b1212e813f7115ed73f6d95e192339b669
 		public override void ResetEffects() {
 			isIrradiated = false;
 		}
