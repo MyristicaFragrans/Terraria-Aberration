@@ -77,9 +77,9 @@ namespace aberration
 					
 					//Setup a Ray
 					Vector2 movePos = new Vector2(player.Center.X,player.Center.Y);
-					int spread = 3+Main.rand.Next(3);//How spread apart should the ray be, this is a slope.
+					int spread = 2+Main.rand.Next(6);//How spread apart should the ray be, this is a slope.
 					bool spreadDir = Main.rand.NextBool();
-					float pierce = 5.0f;// How many blocks can we pierce through, water counts as 4 blocks
+					float pierce = 6.0f;// How many blocks can we pierce through, water counts as 4 blocks
 					int walkpoint; //For scope reasons
 					
 					
@@ -89,6 +89,7 @@ namespace aberration
 							pierce=pierce-1;
 							//Main.NewText("pierced target");
 						}
+						pierce =pierce -((float) Main.tile[(int) (movePos.X/16), (int) (movePos.Y/16)].liquid / 63.9f);
 						
 						if(walkpoint == spread){//Only move left/right occasionally based on spread;
 							walkpoint = 0;//Reset slope counter
@@ -103,7 +104,7 @@ namespace aberration
 						}
 					}
 					//Main.NewText(pierce);
-					if(pierce != 0 || movePos.Y < RadiatedHeight){
+					if(pierce > 0 || movePos.Y < RadiatedHeight){
 						player.AddBuff(mod.BuffType("aberrationradiation"), 1);
 					}
 				//}
