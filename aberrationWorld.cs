@@ -13,6 +13,13 @@ using aberration.Tiles;
 
 namespace aberration {
     class aberrationWorld : ModWorld {
+		public int getNextRailType(int railtype){
+			int returnme = WorldGen.genRand.Next(0,20);
+			while((returnme == 4 && railtype == 5) || (returnme == 5 && railtype == 4)){
+				returnme = WorldGen.genRand.Next(0,20);
+			}
+			return returnme;
+		}
         public override void ModifyWorldGenTasks(List<GenPass> tasks, ref float totalWeight) {
             List<Vector2> majorCaves = new List<Vector2> { };
             // Because world generation is like layering several images ontop of each other, we need to do some steps between the original world generation steps.
@@ -67,12 +74,14 @@ namespace aberration {
             tasks.Add(new PassLegacy("major", delegate (GenerationProgress progress) {
                 progress.Message = "Hiring excavation crews...";
                 //between 700 and 1200 Y
+				
+				//BRH0208 here, why don't instead of using 1200 and 700, we use (2*Main.maxTilesY)/3 and (7*Main.maxTilesY/18)
                 int padding = 500;
                 int steps = (int)((Main.maxTilesX - padding * 2) * 0.002); //comes out to about 22 steps on a large world
                 int stepSize = (int)(Main.maxTilesX / (float)steps);
                 Vector2 last = default;
-                for (int i = 0; i < steps; i++) {
-                    Vector2 node = new Vector2(500 + i * stepSize, WorldGen.genRand.Next(700, 1200));
+                for (int i = 0; i < steps; i++){
+                    Vector2 node = new Vector2(500 + i * stepSize, WorldGen.genRand.Next((7*Main.maxTilesY/18), (2*Main.maxTilesY)/3));
                     if (!Equals(last, default(Vector2))) {
                         majorCaves.AddRange(bresenham(last, node));
                     }
@@ -149,7 +158,169 @@ namespace aberration {
                 progress.Message = "Erosion";
                 smooth.Apply(new GenerationProgress()); // I have no clue how Smoothing does it's GenerationProgress so I decided to hold my ears and sing LALALALA
             }));
-            tasks.Add(new PassLegacy("Final", delegate (GenerationProgress progress) {
+
+			tasks.Add(new PassLegacy("Rail", delegate (GenerationProgress progress) {
+				
+                progress.Message = "Abandoning Mineshafts";
+				
+				
+				//Constants
+				int areaStart = Main.maxTilesY/3;//At which height could the shaft enter?
+				int areaEnd = (2*Main.maxTilesY)/3;//At which height could the shaft not enter?
+				int buffer = 100;//Distance from the edge of the world.
+				int minSize = 100; // To keep a good size for tunnels.
+				int maximumShafts = WorldGen.genRand.Next(0,8);
+				//int maximumShafts = WorldGen.genRand.Next(50,55);
+				for(int thisShaft = 0; thisShaft < maximumShafts; thisShaft+=1){
+					//One time constants
+					int startPos=buffer + (int) WorldGen.genRand.Next(0,Main.maxTilesX-minSize-buffer-50);
+					int endPos= WorldGen.genRand.Next(startPos+50,Main.maxTilesX-buffer);
+					int height = WorldGen.genRand.Next(areaStart,areaEnd);
+					int railtype = 0;
+					for(int i = startPos; i < endPos; i+=5){
+						progress.Set(((float) thisShaft+(((float) i - (float)startPos)/(float)((float)endPos - (float)startPos)))/(float) maximumShafts);
+						
+						//Place supports
+						if((int) (i-startPos)/5 % 10 == 5 && !Main.tile[i, height+1].active()){
+							for (int y = height+1; !Main.tile[i, y].active() || !Main.tile[i, y+1].active(); y++) {
+								setRect(i,y,1,1,TileID.WoodenBeam,true);
+							}
+						}
+						
+						//
+						if(WorldGen.genRand.Next(0,3) == 0){
+							railtype = getNextRailType(railtype);
+						}
+						
+						//Determine if railtype is invalid
+						
+						switch(railtype)
+						{
+						case 3:
+							//Only do case 3 if we have to
+							bool blocksExist = false;
+							for(int j = i; j < i+5; j++){
+								if(blocksExist == false && Main.tile[j,height].active()){
+									blocksExist = true;
+								}
+							}
+							if(!blocksExist){
+								railtype = getNextRailType(railtype);
+							}
+							break;
+						case 4:
+							if(height+4 > areaEnd){
+								railtype = 5;
+							}	//For 4 and 5 make sure it makes sense
+							break;
+						case 5:
+							if(height-4 < areaStart){
+								railtype = 4;
+							}
+							break;
+						}
+						
+						
+						//Switch to each type of rail
+						switch (railtype)
+						{
+						case 1:
+							break;//Sometimes just... don't build any rail, or roof.
+						case 2:
+							setRect(i,height-1,5,1,TileID.MinecartTrack, true);//Track
+							break;//Only Rail
+						case 3://No walls
+							setRect(i,height,5,1,TileID.WoodBlock, true); //Floor
+							setRect(i,height-1,5,1,TileID.MinecartTrack, true);//Track
+							setRect(i,height-6,5,1,TileID.WoodBlock, false); //Roof
+							
+							//Walls
+							if(i%2 == 1){ //Because of dumb patterns I have to do this
+								setRectWall(i,height-4,1,4,WallID.Wood);
+								setRectWall(i+1,height-4,1,4,WallID.BorealWood);
+								setRectWall(i+2,height-4,1,4,WallID.Wood);
+								setRectWall(i+3,height-4,1,4,WallID.BorealWood);
+								setRectWall(i+4,height-4,1,4,WallID.Wood);
+							}else{
+								setRectWall(i,height-4,1,4,WallID.BorealWood);
+								setRectWall(i+1,height-4,1,4,WallID.Wood);
+								setRectWall(i+2,height-4,1,4,WallID.BorealWood);
+								setRectWall(i+3,height-4,1,4,WallID.Wood);
+								setRectWall(i+4,height-4,1,4,WallID.BorealWood);
+							}
+
+							break;//Case 3 is wierd, it tries to let some debris through, not a bug.. its a feature!
+						case 4://Down
+
+							for(int j = i; j < i+5; j++){
+								if(j%2 == 0){
+									setRectWall(j,height-5,1,6,WallID.Wood);
+								}else{
+									setRectWall(j,height-5,1,6,WallID.BorealWood);
+								}
+								setRect(j,height-6,1,7,-1, forced:true);					//Air
+								setRect(j,height-6,1,1,TileID.WoodBlock, forced: true); //Roof
+								setRect(j,height,1,1,TileID.WoodBlock,forced: true); //Floor
+								setRect(j,height-1,1,1,TileID.MinecartTrack, forced:true);//Track
+								height = height+1;
+								
+								
+							}
+							
+							break;
+						case 5://UP
+
+							for(int j = i; j < i+5; j++){
+								if(j%2 == 0){
+									setRectWall(j,height-6,1,6,WallID.Wood);
+								}else{
+									setRectWall(j,height-6,1,6,WallID.BorealWood);
+								}
+								
+								setRect(j,height-6,5,6,-1, true);					//Air
+								setRect(j,height,1,1,TileID.WoodBlock, true);//Floor
+								setRect(j,height-1,1,1,TileID.MinecartTrack, true);//Track
+								setRect(j,height-7,1,1,TileID.WoodBlock, true); //Roof
+								height = height-1;
+								
+							}
+							
+							break;
+						default:
+							//Make boring straight tunnels
+							setRect(i,height-5,5,4,-1, true);					//Air
+							setRect(i,height,5,1,TileID.WoodBlock, true); //Floor
+							setRect(i,height-1,5,1,TileID.MinecartTrack, true);//Track
+							setRect(i,height-6,5,1,TileID.WoodBlock, true); //Roof
+							
+							//Walls
+							if(i%2 == 1){ //Because of dumb patterns I have to do this
+								setRectWall(i,height-5,1,5,WallID.Wood);
+								setRectWall(i+1,height-5,1,5,WallID.BorealWood);
+								setRectWall(i+2,height-5,1,5,WallID.Wood);
+								setRectWall(i+3,height-5,1,5,WallID.BorealWood);
+								setRectWall(i+4,height-5,1,5,WallID.Wood);
+							}else{
+								setRectWall(i,height-5,1,5,WallID.BorealWood);
+								setRectWall(i+1,height-5,1,5,WallID.Wood);
+								setRectWall(i+2,height-5,1,5,WallID.BorealWood);
+								setRectWall(i+3,height-5,1,5,WallID.Wood);
+								setRectWall(i+4,height-5,1,5,WallID.BorealWood);
+							}
+						
+							if((int) (i-startPos)/5 % 10 == 0){
+								try { // This is dumb. Please do better, Seriously.
+									setRect(i,height-2,1,1, mod.TileType("IonizedLantern"));
+								}catch(Exception e){
+									mod.Logger.Debug("Failed Ionized Lantern at ("+i+","+(height-2)+") default rail track");
+								}
+							}
+							break;
+						}
+					}
+				}
+            }));
+			tasks.Add(new PassLegacy("Final", delegate (GenerationProgress progress) {
                 
                 Vector2 spawnpoint = majorCaves[majorCaves.Count / 2];
                 while (!Main.tile[(int)spawnpoint.X, (int)spawnpoint.Y].active() || Main.tile[(int)spawnpoint.X, (int)spawnpoint.Y].type == TileID.Trees) {
@@ -203,10 +374,10 @@ namespace aberration {
         internal static void setRect(int x, int y, int w, int h, int type = -1, bool forced = false, int style = 0) {
             for (int cx = x; cx < x + w; cx++) {
                 for (int cy = y; cy < y + h; cy++) {
-                    if (type == -1)
-                        WorldGen.KillTile(cx, cy, noItem: true);
-                    else
-                        WorldGen.PlaceTile(cx, cy, type, forced: forced, style: style);
+                    WorldGen.KillTile(cx, cy, noItem: true);
+					if (type != -1){
+						WorldGen.PlaceTile(cx, cy, type, forced: forced, style: style);
+					}
                 }
             }
         }
