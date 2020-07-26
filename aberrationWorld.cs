@@ -25,7 +25,10 @@ namespace aberration {
                 Main.rockLayer = Main.worldSurface + 100;
                 for (int x = 0; x < Main.maxTilesX; x++) {
                     for (int y = (int)Main.rockLayer; y < Main.maxTilesY - 200; y++) {
-                        WorldGen.PlaceTile(x, y, TileID.Stone);
+                        Main.tile[x, y].active(active: true);
+                        Main.tile[x, y].type = TileID.Stone;
+                        Main.tile[x, y].frameX = -1;
+                        Main.tile[x, y].frameY = -1;
                     }
                     progress.Set(x / (float)Main.maxTilesX);
                 }
