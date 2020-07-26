@@ -163,8 +163,12 @@ namespace aberration {
                 //right wall
                 setRect((int)spawnpoint.X + 7, (int)spawnpoint.Y - 4, 1, 4, TileID.WoodenBeam, forced: true);
                 //torches
-                WorldGen.PlaceTile((int)spawnpoint.X - 4, (int)spawnpoint.Y - 3, TileID.Torches);
-                WorldGen.PlaceTile((int)spawnpoint.X + 4, (int)spawnpoint.Y - 3, TileID.Torches);
+                WorldGen.KillTile((int)spawnpoint.X - 4, (int)spawnpoint.Y - 3);
+                WorldGen.KillTile((int)spawnpoint.X - 4, (int)spawnpoint.Y - 2);
+                WorldGen.PlaceTile((int)spawnpoint.X - 4, (int)spawnpoint.Y - 3, TileType<Tiles.IonizedLantern>());
+                WorldGen.KillTile((int)spawnpoint.X + 4, (int)spawnpoint.Y - 3);
+                WorldGen.KillTile((int)spawnpoint.X + 4, (int)spawnpoint.Y - 2);
+                WorldGen.PlaceTile((int)spawnpoint.X + 4, (int)spawnpoint.Y - 3, TileType<Tiles.IonizedLantern>());
 
                 //finally set spawnpoint
                 Main.spawnTileX = (int)spawnpoint.X;
@@ -278,8 +282,12 @@ namespace aberration {
                             if (!Main.tile[gx, gy - 1].active()) {
                                 WorldGen.GrowTree(gx, gy);
                                 if (!Main.tile[gx, gy - 1].active()) {
-                                    if (WorldGen.genRand.Next(12) == 0) {
-                                        WorldGen.PlaceTile(gx, gy - 1, TileType<Tiles.IonizingMetal>(), forced: true);
+                                    if (WorldGen.genRand.Next(12) == 0 && IonizedLantern.canPlacePublic(gx,gy-1)) {
+                                        try {
+                                            WorldGen.PlaceTile(gx, gy - 1, TileType<Tiles.IonizedLantern>(), forced: true);
+                                        } catch {
+                                            WorldGen.PlaceTile(gx, gy - 1, 3, style: WorldGen.genRand.Next(1, 42)); //tall grass
+                                        }
                                     } else {
                                         WorldGen.PlaceTile(gx, gy - 1, 3, style: WorldGen.genRand.Next(1, 42)); //tall grass
                                     }
