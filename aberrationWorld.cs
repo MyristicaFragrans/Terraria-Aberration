@@ -149,7 +149,7 @@ namespace aberration {
             tasks.Add(new PassLegacy("Final", delegate (GenerationProgress progress) {
                 
                 Vector2 spawnpoint = majorCaves[majorCaves.Count / 2];
-                while (!Main.tile[(int)spawnpoint.X, (int)spawnpoint.Y].active()) {
+                while (!Main.tile[(int)spawnpoint.X, (int)spawnpoint.Y].active() || Main.tile[(int)spawnpoint.X, (int)spawnpoint.Y].type == TileID.Trees) {
                     spawnpoint.Y++;
                 }
                 setRect((int)spawnpoint.X - 7, (int)spawnpoint.Y - 5, 14, 4, forced: true);
