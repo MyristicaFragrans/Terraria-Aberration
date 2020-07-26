@@ -41,11 +41,13 @@ namespace aberration.Tiles {
             AddMapEntry(new Color(253, 221, 3), Language.GetText("MapObject.FloorLamp"));
         }
 
-        public override bool CanPlace(int i, int j) {
-            if(Main.tile[i,j].active() || Main.tile[i,j-1].active()) {//blocks are not free
+        public override bool CanPlace(int i, int j) => canPlacePublic(i, j);
+        public static bool canPlacePublic(int i, int j) {
+            if (Main.tile[i, j].active() || Main.tile[i, j - 1].active()) {//blocks are not free
                 return false;
-            } else {
-                if (Main.tile[i + 1, j - 1].active() || Main.tile[i - 1, j - 1].active() || Main.tile[i, j + 1].active() || Main.tile[i, j - 2].active() || Main.tile[i,j-1].wall != WallID.None) return true;
+            }
+            else {
+                if (Main.tile[i + 1, j - 1].active() || Main.tile[i - 1, j - 1].active() || Main.tile[i, j + 1].active() || Main.tile[i, j - 2].active() || Main.tile[i, j - 1].wall != WallID.None) return true;
                 else return false;
             }
         }
