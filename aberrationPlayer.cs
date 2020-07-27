@@ -1,18 +1,8 @@
 using Terraria;
-using Terraria.GameContent.Generation;
 using Terraria.ModLoader;
 using static Terraria.ModLoader.ModContent;
 using Microsoft.Xna.Framework;
-using Microsoft.Xna.Framework.Graphics;
-using System;
-using System.IO;
-using System.Collections.Generic;
-using Terraria;
-using Terraria.ID;
-using Terraria.World.Generation;
-using Terraria.GameContent.Generation;
 using aberration.Dusts;
-using System.Linq;
 //Note, some of these imports may be unneccesary, I honestly have not checked
 
 
@@ -21,8 +11,6 @@ namespace aberration
 	public class aberattionPlayer : ModPlayer
 	{
 		public bool isIrradiated;
-		private int counter = 0;
-		
 		
 		public override void ResetEffects() {
 			isIrradiated = false;

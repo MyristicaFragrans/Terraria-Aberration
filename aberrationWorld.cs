@@ -74,14 +74,21 @@ namespace aberration {
             tasks.Add(new PassLegacy("major", delegate (GenerationProgress progress) {
                 progress.Message = "Hiring excavation crews...";
                 //between 700 and 1200 Y
-				
-				//BRH0208 here, why don't instead of using 1200 and 700, we use (2*Main.maxTilesY)/3 and (7*Main.maxTilesY/18)
+
+                //BRH0208 here, why don't instead of using 1200 and 700, we use (2*Main.maxTilesY)/3 and (7*Main.maxTilesY/18)
+                //Dr. Yamok Here. Apparently this does not transfer worlds AS well.
+                int max = 700;
+                int min = 1200;
+                if(Main.maxTilesY <= 1200) {
+                    max = 500;
+                    min = 800;
+                }
                 int padding = 500;
-                int steps = (int)((Main.maxTilesX - padding * 2) * 0.002); //comes out to about 22 steps on a large world
+                int steps = (int)((Main.maxTilesX - padding * 2) * 0.002)-1; //comes out to about 21 steps on a large world
                 int stepSize = (int)(Main.maxTilesX / (float)steps);
                 Vector2 last = default;
                 for (int i = 0; i < steps; i++){
-                    Vector2 node = new Vector2(500 + i * stepSize, WorldGen.genRand.Next((7*Main.maxTilesY/18), (2*Main.maxTilesY)/3));
+                    Vector2 node = new Vector2(500 + i * stepSize, WorldGen.genRand.Next(max, min)); //yes these are oriented properly
                     if (!Equals(last, default(Vector2))) {
                         majorCaves.AddRange(bresenham(last, node));
                     }
@@ -311,7 +318,7 @@ namespace aberration {
 							if((int) (i-startPos)/5 % 10 == 0){
 								try { // This is dumb. Please do better, Seriously.
 									setRect(i,height-2,1,1, mod.TileType("IonizedLantern"));
-								}catch(Exception e){
+								} catch {
 									mod.Logger.Debug("Failed Ionized Lantern at ("+i+","+(height-2)+") default rail track");
 								}
 							}
@@ -331,7 +338,7 @@ namespace aberration {
                 // ceiling
                 setRect((int)spawnpoint.X - 7, (int)spawnpoint.Y - 5, 15, 1, TileID.WoodBlock, true);
                 //floor
-                setRect((int)spawnpoint.X - 7, (int)spawnpoint.Y, 14, 1, TileID.WoodBlock, true);
+                setRect((int)spawnpoint.X - 7, (int)spawnpoint.Y, 15, 1, TileID.WoodBlock, true);
                 //left wall
                 setRect((int)spawnpoint.X - 7, (int)spawnpoint.Y - 4, 1, 4, TileID.WoodenBeam, forced: true);
                 //right wall

@@ -18,11 +18,14 @@ namespace aberration
             ModRecipe rope = new ModRecipe(this);
             rope.AddIngredient(ModContent.ItemType<plantfibre>(), 5);
             rope.SetResult(ItemID.Rope);
+            rope.AddRecipe();
 
             ModRecipe lantern = new ModRecipe(this);
             lantern.AddIngredient(ModContent.ItemType<IonizingMetalItem>());
             lantern.AddIngredient(ItemID.IronBar);
             lantern.AddTile(TileID.WorkBenches);
+            lantern.SetResult(ModContent.ItemType<IonizedLanternItem>());
+            lantern.AddRecipe();
         }
     }
 }
